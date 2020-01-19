@@ -41,7 +41,7 @@ Pawnbot was originally written for a closed social group based on a random idea 
 Follow the "Before you begin" steps in [Google's quickstart guide](https://cloud.google.com/text-to-speech/docs/quickstart-client-libraries) until you get a json file for authenticating. Store it somewhere safe.
 
 ### Running the bot
-Download the latest release jar from the [Releases tab](https://github.com/incognitomoose/pawnbot/releases).
+Download the pawnbot jar file from the [latest release](https://github.com/incognitomoose/pawnbot/releases/latest).
 
 Set the following environment variables in a command line window or shell:
 - `DISCORD_BOT_TOKEN` to your Discord Bot user's token
