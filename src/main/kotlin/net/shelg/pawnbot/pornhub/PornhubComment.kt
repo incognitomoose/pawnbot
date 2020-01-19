@@ -31,6 +31,8 @@ class PornhubComment(
     override fun toString(): String {
         return "PornhubComment(id=$id, videoId=${video.id}, text='$text', numWords=$numWords, numUsages=$numUsages)"
     }
+
+    fun otherVideoComments() = video.comments.filter { it.id != id }
 }
 
 @Repository

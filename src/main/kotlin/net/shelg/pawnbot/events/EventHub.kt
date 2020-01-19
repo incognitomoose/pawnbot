@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class EventHub(private val listeners: List<EventListener>) {
-    fun guildChatCommentResponse(triggerMessage: Message, responseMessage: Message, comment: PornhubComment) {
-        listeners.forEach { it.guildChatCommentResponse(triggerMessage, responseMessage, comment) }
+    fun fireCommentUsed(comment: PornhubComment, triggerMessage: Message? = null, responseMessage: Message? = null) {
+        listeners.forEach { it.onCommentUsed(comment, triggerMessage, responseMessage) }
     }
 }

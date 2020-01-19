@@ -38,7 +38,7 @@ class MentionTrigger(
         val comment = commentService.getRandomComment(percentGay, minNumWords, maxNumWords)
         if (comment != null) {
             textSender.sendMessage("${message.author.asMention}: ${comment.text}", channel, false) {
-                eventHub.guildChatCommentResponse(message, it, comment)
+                eventHub.fireCommentUsed(comment, message, it)
             }
         } else {
             textSender.sendMessage("${message.author.asMention}: Sorry, I looked through a bunch of random videos," +

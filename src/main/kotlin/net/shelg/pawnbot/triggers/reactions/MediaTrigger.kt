@@ -64,7 +64,7 @@ class MediaTrigger(
         val comment = commentService.getRandomComment(percentGay, minNumWords, maxNumWords)
         if (comment != null) {
             textSender.sendMessage(comment.text, channel, false, {
-                eventHub.guildChatCommentResponse(message, it, comment)
+                eventHub.fireCommentUsed(comment, message, it)
             })
         }
     }

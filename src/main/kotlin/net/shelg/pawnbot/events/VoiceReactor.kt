@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class VoiceReactor(private val voice: VoiceComponent) : AbstractEventListener() {
-    override fun guildChatCommentResponse(triggerMessage: Message, responseMessage: Message, comment: PornhubComment) {
-        voice.speakText(triggerMessage.guild, comment.text)
+    override fun onCommentUsed(comment: PornhubComment, triggerMessage: Message?, responseMessage: Message?) {
+        if (triggerMessage != null) {
+            voice.speakText(triggerMessage.guild, comment.text)
+        }
     }
 }

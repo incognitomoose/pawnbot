@@ -14,13 +14,15 @@ class CommentUsageTracker(
         private val commentUsageRepo: PornhubCommentUsageRepository
 ) : AbstractEventListener() {
 
-    override fun guildChatCommentResponse(triggerMessage: Message, responseMessage: Message, comment: PornhubComment) {
-        commentUsageRepo.save(PornhubCommentUsage(
-                comment = comment,
-                timestamp = Instant.now(),
-                channelId = responseMessage.channel.idLong,
-                messageId = responseMessage.idLong
-        ))
+    override fun onCommentUsed(comment: PornhubComment, triggerMessage: Message?, responseMessage: Message?) {
+        if (responseMessage != null) {
+            commentUsageRepo.save(PornhubCommentUsage(
+                    comment = comment,
+                    timestamp = Instant.now(),
+                    channelId = responseMessage.channel.idLong,
+                    messageId = responseMessage.idLong
+            ))
+        }
 
         comment.numUsages++
         commentRepo.save(comment)
