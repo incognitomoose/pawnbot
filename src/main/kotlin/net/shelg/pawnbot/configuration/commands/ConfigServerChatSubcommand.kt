@@ -1,4 +1,4 @@
-package net.shelg.pawnbot.triggers.commands.config
+package net.shelg.pawnbot.configuration.commands
 
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message

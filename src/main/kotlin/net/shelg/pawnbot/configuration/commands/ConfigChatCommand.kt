@@ -1,4 +1,4 @@
-package net.shelg.pawnbot.triggers.commands.censor
+package net.shelg.pawnbot.configuration.commands
 
 import net.dv8tion.jda.api.entities.Message
 import net.shelg.pawnbot.TextSender
@@ -8,34 +8,30 @@ import net.shelg.pawnbot.triggers.commands.CommandLineParser
 import org.springframework.stereotype.Component
 
 @Component
-class CensorChatCommand(
+class ConfigChatCommand(
         cliParser: CommandLineParser,
         configService: ConfigService,
         private val textSender: TextSender,
-        censorAddSubCommand: CensorAddChatSubcommand,
-        censorListSubCommand: CensorListChatSubcommand,
-        censorRemoveSubCommand: CensorRemoveChatSubcommand,
-        censorTestSubCommand: CensorTestChatSubcommand
+        configChannelChatSubcommand: ConfigChannelChatSubcommand,
+        configServerChatSubcommand: ConfigServerChatSubcommand
 ) : AbstractChatCommand(cliParser, textSender, configService) {
 
     private val subCommands = listOf(
-            censorAddSubCommand,
-            censorListSubCommand,
-            censorRemoveSubCommand,
-            censorTestSubCommand
+            configChannelChatSubcommand,
+            configServerChatSubcommand
     )
 
-    override fun commandSyntax() = "censor {subcommand} [args]"
-    override fun description() = "Manage phrases that are censored"
+    override fun commandSyntax() = "config {scope} [args]"
+    override fun description() = "Show or change configuration"
 
     override fun execute(args: Map<String, String>, context: Message) {
         val commandPrefix = getCommandPrefix(context.textChannel)
-        val subCommand = args["subcommand"]
+        val subCommand = args["scope"]
         val subArgs = args["args"]
 
         subCommands.find { it.command().equals(subCommand, ignoreCase = true) }
                 ?.executeCLI(subArgs, context, "${commandPrefix + command()} ")
-                ?: textSender.sendMessage("Invalid subcommand $subCommand\n" +
+                ?: textSender.sendMessage("Invalid scope $subCommand\n" +
                         usage(commandPrefix), context.textChannel)
     }
 

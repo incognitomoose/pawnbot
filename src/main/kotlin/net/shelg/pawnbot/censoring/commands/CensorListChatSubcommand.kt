@@ -1,4 +1,4 @@
-package net.shelg.pawnbot.triggers.commands.censor
+package net.shelg.pawnbot.censoring.commands
 
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
