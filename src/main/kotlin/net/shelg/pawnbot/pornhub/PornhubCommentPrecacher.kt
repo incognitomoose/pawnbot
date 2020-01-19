@@ -62,7 +62,7 @@ class PornhubCommentPrecacher(
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(PornhubCommentPrecacher::class.java)
 
-        const val TARGET_UNUSED_COMMENTS = 100
+        const val TARGET_UNUSED_COMMENTS = 200
         const val MAX_VIDS_PER_RUN = 10
     }
 }
