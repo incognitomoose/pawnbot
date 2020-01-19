@@ -1,0 +1,32 @@
+<configuration>
+    <appender name="STDOUT-CHAT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>marker != null &amp;&amp; marker.contains("DISCORD_CHAT")</expression>
+            </evaluator>
+            <OnMismatch>DENY</OnMismatch>
+            <OnMatch>NEUTRAL</OnMatch>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} CHAT - [%X{guildName}][%X{channelName}] %X{authorEffectiveName}: %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>marker != null &amp;&amp; marker.contains("DISCORD_CHAT")</expression>
+            </evaluator>
+            <OnMismatch>NEUTRAL</OnMismatch>
+            <OnMatch>DENY</OnMatch>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5.5level - [%X{guildName}][%X{channelName}] %X{authorTag} - %logger{0} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="STDOUT-CHAT"/>
+    </root>
+</configuration>
