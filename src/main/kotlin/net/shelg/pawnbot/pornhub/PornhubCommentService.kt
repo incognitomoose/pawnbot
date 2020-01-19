@@ -7,19 +7,19 @@ import kotlin.random.Random
 
 @Service
 class PornhubCommentService(private val commentRepo: PornhubCommentRepository) {
-    fun getRandomComment(percentGay: Int, minNumWords: Int, maxNumWords: Int): PornhubComment? {
+    fun getRandomComment(percentGay: Int, minWords: Int, maxWords: Int): PornhubComment? {
         val gay = getRandomBooleanWithProbabilityPercentage(percentGay)
         val numAvailable = commentRepo.countByVideoGayEqualsAndNumWordsBetweenAndNumUsagesEquals(
                 gay = gay,
-                minNumWords = minNumWords,
-                maxNumWords = maxNumWords,
+                minWords = minWords,
+                maxWords = maxWords,
                 numUsages = 0
         ).toInt()
         return if (numAvailable > 0) {
             commentRepo.findByVideoGayEqualsAndNumWordsBetweenAndNumUsagesEquals(
                     gay = gay,
-                    minNumWords = minNumWords,
-                    maxNumWords = maxNumWords,
+                    minWords = minWords,
+                    maxWords = maxWords,
                     numUsages = 0,
                     pageable = PageRequest.of(Random.nextInt(numAvailable), 1)
             ).firstOrNull()

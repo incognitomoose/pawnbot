@@ -3,9 +3,9 @@ package net.shelg.pawnbot.triggers.reactions
 import net.dv8tion.jda.api.entities.ChannelType
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
+import net.shelg.pawnbot.TextSender
 import net.shelg.pawnbot.configuration.ConfigProperty
 import net.shelg.pawnbot.configuration.GuildConfigurationService
-import net.shelg.pawnbot.TextSender
 import net.shelg.pawnbot.events.EventHub
 import net.shelg.pawnbot.pornhub.PornhubCommentService
 import net.shelg.pawnbot.triggers.MessageTrigger
@@ -59,13 +59,12 @@ class MediaTrigger(
         textSender.startTyping(channel)
         val guild = message.guild
         val percentGay = configService.getInt(guild, ConfigProperty.PERCENT_GAY)
-        val minNumWords = configService.getInt(guild, ConfigProperty.REACTION_NUM_WORDS_MIN)
-        val maxNumWords = configService.getInt(guild, ConfigProperty.REACTION_NUM_WORDS_MAX)
-        val comment = commentService.getRandomComment(percentGay, minNumWords, maxNumWords)
+        val numWordsInterval = configService.getReactionNumWordsInterval(guild)
+        val comment = commentService.getRandomComment(percentGay, numWordsInterval.first, numWordsInterval.second)
         if (comment != null) {
-            textSender.sendMessage(comment.text, channel, false, {
+            textSender.sendMessage(comment.text, channel, false) {
                 eventHub.fireCommentUsed(comment, message, it)
-            })
+            }
         }
     }
 

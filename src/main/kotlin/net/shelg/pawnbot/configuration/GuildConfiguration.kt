@@ -1,6 +1,7 @@
 package net.shelg.pawnbot.configuration
 
 import net.dv8tion.jda.api.entities.Guild
+import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
@@ -19,7 +20,10 @@ data class GuildConfigurationProperty(
 )
 
 @Repository
-interface GuildConfigurationValueRepository : CrudRepository<GuildConfigurationProperty, String>
+interface GuildConfigurationValueRepository : CrudRepository<GuildConfigurationProperty, String> {
+    @Query("select distinct p.guildId from GuildConfigurationProperty p")
+    fun findAllDistinctGuildIds(): List<Long>
+}
 
 enum class ConfigValueFormat {
     TEXT {
@@ -52,22 +56,54 @@ enum class ConfigProperty(
 
 @Service
 class GuildConfigurationService(val repository: GuildConfigurationValueRepository) {
-    fun getInt(guild: Guild, property: ConfigProperty) =
-            property.format.toInt(getString(guild, property))
-
-    fun getString(guild: Guild, property: ConfigProperty) =
-            getProperty(guild, property).value
-
-    private fun getProperty(guild: Guild, property: ConfigProperty) =
-            repository.findByIdOrNull("${guild.idLong}_${property.key}")
-                ?: repository.save(
-                        GuildConfigurationProperty(
-                                id = "${guild.idLong}_${property.key}",
-                                guildId = guild.idLong,
-                                key = property.key,
-                                value = property.defaultValue
+    fun getAllCommentNumWordsIntervals() =
+            repository.findAllDistinctGuildIds()
+                    .asSequence()
+                    .flatMap {
+                        sequenceOf(
+                                getReactionNumWordsInterval(it),
+                                getVoiceChatJoinNumWordsInterval(it)
                         )
-                )
+                    }
+                    .plus(
+                            sequenceOf(
+                                    ConfigProperty.REACTION_NUM_WORDS_MIN.defaultValue.toInt() to
+                                            ConfigProperty.REACTION_NUM_WORDS_MAX.defaultValue.toInt(),
+                                    4 to 4
+                            )
+                    )
+                    .distinct()
+                    .toList()
+
+    fun getReactionNumWordsInterval(guild: Guild) = getReactionNumWordsInterval(guild.idLong)
+
+    fun getVoiceChatJoinNumWordsInterval(guild: Guild) = getVoiceChatJoinNumWordsInterval(guild.idLong)
+
+    fun getVoiceChatJoinNumWordsInterval(guildId: Long) = 4 to 4 // Per now implicit
+
+    private fun getReactionNumWordsInterval(guildId: Long) =
+            getInt(guildId, ConfigProperty.REACTION_NUM_WORDS_MIN) to
+                    getInt(guildId, ConfigProperty.REACTION_NUM_WORDS_MAX)
+
+    fun getInt(guild: Guild, property: ConfigProperty) = getInt(guild.idLong, property)
+
+    private fun getInt(guildId: Long, property: ConfigProperty) =
+            property.format.toInt(getString(guildId, property))
+
+    fun getString(guild: Guild, property: ConfigProperty) = getString(guild.idLong, property)
+
+    private fun getString(guildId: Long, property: ConfigProperty) = getProperty(guildId, property).value
+
+    private fun getProperty(guildId: Long, property: ConfigProperty) =
+            repository.findByIdOrNull("${guildId}_${property.key}")
+                    ?: repository.save(
+                            GuildConfigurationProperty(
+                                    id = "${guildId}_${property.key}",
+                                    guildId = guildId,
+                                    key = property.key,
+                                    value = property.defaultValue
+                            )
+                    )
 
     fun setProperty(guild: Guild, property: ConfigProperty, value: String) {
         repository.save(

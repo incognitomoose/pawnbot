@@ -37,7 +37,8 @@ class Pawnbot(
     override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         if (event.guild.selfMember == event.member) {
             val percentGay = configService.getInt(event.guild, ConfigProperty.PERCENT_GAY)
-            val comment = commentService.getRandomComment(percentGay, 4, 4)
+            val numWordsInterval = configService.getVoiceChatJoinNumWordsInterval(event.guild)
+            val comment = commentService.getRandomComment(percentGay, numWordsInterval.first, numWordsInterval.second)
             val text = comment?.text ?: "Hi guys! It's me, " + event.guild.selfMember.effectiveName + "!"
             LOGGER.info("Greeting on VC join with text \"$text\"")
             voice.speakText(event.guild, text)

@@ -41,15 +41,15 @@ interface PornhubCommentRepository : CrudRepository<PornhubComment, Long> {
 
     fun countByVideoGayEqualsAndNumWordsBetweenAndNumUsagesEquals(
             gay: Boolean,
-            minNumWords: Int,
-            maxNumWords: Int,
+            minWords: Int,
+            maxWords: Int,
             numUsages: Int
     ): Long
 
     fun findByVideoGayEqualsAndNumWordsBetweenAndNumUsagesEquals(
             gay: Boolean,
-            minNumWords: Int,
-            maxNumWords: Int,
+            minWords: Int,
+            maxWords: Int,
             numUsages: Int,
             pageable: Pageable
     ): Page<PornhubComment>

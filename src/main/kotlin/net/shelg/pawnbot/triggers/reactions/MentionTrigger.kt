@@ -33,9 +33,8 @@ class MentionTrigger(
         textSender.startTyping(channel)
         val guild = message.guild
         val percentGay = configService.getInt(guild, ConfigProperty.PERCENT_GAY)
-        val minNumWords = configService.getInt(guild, ConfigProperty.REACTION_NUM_WORDS_MIN)
-        val maxNumWords = configService.getInt(guild, ConfigProperty.REACTION_NUM_WORDS_MAX)
-        val comment = commentService.getRandomComment(percentGay, minNumWords, maxNumWords)
+        val numWordsInterval = configService.getReactionNumWordsInterval(guild)
+        val comment = commentService.getRandomComment(percentGay, numWordsInterval.first, numWordsInterval.second)
         if (comment != null) {
             textSender.sendMessage("${message.author.asMention}: ${comment.text}", channel, false) {
                 eventHub.fireCommentUsed(comment, message, it)
