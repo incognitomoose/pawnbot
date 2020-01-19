@@ -1,16 +1,16 @@
 package net.shelg.pawnbot.triggers.commands
 
-import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.TextChannel
 import net.shelg.pawnbot.TextSender
-import net.shelg.pawnbot.configuration.GuildConfigurationService
+import net.shelg.pawnbot.configuration.ConfigService
 import net.shelg.pawnbot.formatters.DiscordFormatter.bold
 import org.springframework.stereotype.Component
 
 @Component
 class HelpChatCommand(
         cliParser: CommandLineParser,
-        configService: GuildConfigurationService,
+        configService: ConfigService,
         private val textSender: TextSender,
         private val chatCommands: List<AbstractChatCommand>
 ) : AbstractChatCommand(cliParser, textSender, configService) {
@@ -19,16 +19,17 @@ class HelpChatCommand(
     override fun description() = "Show which commands are available"
 
     override fun execute(args: Map<String, String>, context: Message) {
-        textSender.startTyping(context.textChannel)
-        val response = respond(context.guild)
-        textSender.sendMessage(response, context.textChannel)
+        val channel = context.textChannel
+        textSender.startTyping(channel)
+        val response = respond(channel)
+        textSender.sendMessage(response, channel)
     }
 
-    private fun respond(guild: Guild) =
+    private fun respond(channel: TextChannel) =
             "${bold("The following commands are available:")}\n" +
                     chatCommands.plus(this)
                             .sortedBy(AbstractChatCommand::command)
                             .joinToString(separator = "\n") {
-                                bold(it.commandWithPrefix(guild)) + " - " + it.description()
+                                bold(it.commandWithPrefix(channel)) + " - " + it.description()
                             }
 }

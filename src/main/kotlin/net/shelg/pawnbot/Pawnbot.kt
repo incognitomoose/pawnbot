@@ -7,8 +7,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.shelg.pawnbot.MDCHandler.clearMDC
 import net.shelg.pawnbot.MDCHandler.setMDC
-import net.shelg.pawnbot.configuration.ConfigProperty
-import net.shelg.pawnbot.configuration.GuildConfigurationService
+import net.shelg.pawnbot.configuration.ConfigService
 import net.shelg.pawnbot.pornhub.PornhubCommentService
 import net.shelg.pawnbot.triggers.MessageTrigger
 import net.shelg.pawnbot.voice.VoiceComponent
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Service
 @Service
 class Pawnbot(
         jda: JDA,
-        private val configService: GuildConfigurationService,
+        private val configService: ConfigService,
         private val commentService: PornhubCommentService,
         private val voice: VoiceComponent,
         private val messageTriggers: List<MessageTrigger>
@@ -36,8 +35,11 @@ class Pawnbot(
 
     override fun onGuildVoiceJoin(event: GuildVoiceJoinEvent) {
         if (event.guild.selfMember == event.member) {
-            val percentGay = configService.getInt(event.guild, ConfigProperty.PERCENT_GAY)
-            val numWordsInterval = configService.getVoiceChatJoinNumWordsInterval(event.guild)
+            val percentGay = configService.gayPercentage(event.guild)
+            if (configService.voiceChatIntroductionCommentEnabled(event.guild)) {
+
+            }
+            val numWordsInterval = configService.voiceChatIntroductionCommentNumWordsInterval(event.guild)
             val comment = commentService.getRandomComment(percentGay, numWordsInterval.first, numWordsInterval.second)
             val text = comment?.text ?: "Hi guys! It's me, " + event.guild.selfMember.effectiveName + "!"
             LOGGER.info("Greeting on VC join with text \"$text\"")

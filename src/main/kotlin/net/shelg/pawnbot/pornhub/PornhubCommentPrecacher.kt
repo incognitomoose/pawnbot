@@ -1,6 +1,6 @@
 package net.shelg.pawnbot.pornhub
 
-import net.shelg.pawnbot.configuration.GuildConfigurationService
+import net.shelg.pawnbot.configuration.ConfigService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
@@ -10,7 +10,7 @@ import kotlin.random.Random
 
 @Service
 class PornhubCommentPrecacher(
-        private val configService: GuildConfigurationService,
+        private val configService: ConfigService,
         private val pornhubClient: PornhubClient,
         private val commentRepo: PornhubCommentRepository,
         private val videoRepo: PornhubVideoRepository

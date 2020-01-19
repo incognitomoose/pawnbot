@@ -3,7 +3,7 @@ package net.shelg.pawnbot.triggers.commands
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.shelg.pawnbot.TextSender
-import net.shelg.pawnbot.configuration.GuildConfigurationService
+import net.shelg.pawnbot.configuration.ConfigService
 import net.shelg.pawnbot.events.EventHub
 import net.shelg.pawnbot.formatters.DiscordFormatter.bold
 import net.shelg.pawnbot.formatters.DiscordFormatter.quote
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 @Component
 class SauceChatCommand(
         cliParser: CommandLineParser,
-        configService: GuildConfigurationService,
+        configService: ConfigService,
         private val textSender: TextSender,
         private val commentUsageRepo: PornhubCommentUsageRepository,
         private val eventHub: EventHub

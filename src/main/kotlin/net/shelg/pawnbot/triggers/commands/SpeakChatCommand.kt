@@ -1,7 +1,7 @@
 package net.shelg.pawnbot.triggers.commands
 
 import net.dv8tion.jda.api.entities.Message
-import net.shelg.pawnbot.configuration.GuildConfigurationService
+import net.shelg.pawnbot.configuration.ConfigService
 import net.shelg.pawnbot.TextSender
 import net.shelg.pawnbot.voice.VoiceComponent
 import org.springframework.stereotype.Component
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 @Component
 class SpeakChatCommand(
         cliParser: CommandLineParser,
-        configService: GuildConfigurationService,
+        configService: ConfigService,
         private val textSender: TextSender,
         private val voice: VoiceComponent
 ) : AbstractChatCommand(cliParser, textSender, configService) {

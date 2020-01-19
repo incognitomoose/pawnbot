@@ -4,8 +4,7 @@ import net.dv8tion.jda.api.entities.ChannelType
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
 import net.shelg.pawnbot.TextSender
-import net.shelg.pawnbot.configuration.ConfigProperty
-import net.shelg.pawnbot.configuration.GuildConfigurationService
+import net.shelg.pawnbot.configuration.ConfigService
 import net.shelg.pawnbot.events.EventHub
 import net.shelg.pawnbot.pornhub.PornhubCommentService
 import net.shelg.pawnbot.triggers.MessageTrigger
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class MediaTrigger(
-        private val configService: GuildConfigurationService,
+        private val configService: ConfigService,
         private val textSender: TextSender,
         private val commentService: PornhubCommentService,
         private val eventHub: EventHub
@@ -42,24 +41,15 @@ class MediaTrigger(
 
     override fun triggersByMessage(message: Message) =
             message.isFromType(ChannelType.TEXT)
-                    && configuredToReactToMedia(message)
-                    && message.textChannel.isNSFW
+                    && configService.reactionsMediaEnabled(message.textChannel)
                     && message.textChannel.canTalkLogIfNot()
                     && message.hasMediaOrLink()
-
-    private fun configuredToReactToMedia(message: Message) =
-            configService.getString(message.guild, ConfigProperty.MEDIA_REACTION_CHANNELS)
-                    .split(",")
-                    .asSequence()
-                    .map(String::trim)
-                    .any { it == message.textChannel.idLong.toString() }
 
     override fun handleTrigger(message: Message) {
         val channel = message.textChannel
         textSender.startTyping(channel)
-        val guild = message.guild
-        val percentGay = configService.getInt(guild, ConfigProperty.PERCENT_GAY)
-        val numWordsInterval = configService.getReactionNumWordsInterval(guild)
+        val percentGay = configService.gayPercentage(channel)
+        val numWordsInterval = configService.reactionsMediaNumwordsInterval(channel)
         val comment = commentService.getRandomComment(percentGay, numWordsInterval.first, numWordsInterval.second)
         if (comment != null) {
             textSender.sendMessage(comment.text, channel, false) {
