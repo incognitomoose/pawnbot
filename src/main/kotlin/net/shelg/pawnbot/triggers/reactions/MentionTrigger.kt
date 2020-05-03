@@ -37,6 +37,7 @@ class MentionTrigger(
         if (comment != null) {
             textSender.sendMessage("${message.author.asMention}: ${comment.text}", channel, false) {
                 eventHub.fireCommentUsed(comment, message, it)
+                eventHub.fireSpeakableTextRelayed(comment.text, message, it)
             }
         } else {
             textSender.sendMessage("${message.author.asMention}: Sorry, I looked through a bunch of random videos," +

@@ -54,6 +54,7 @@ class MediaTrigger(
         if (comment != null) {
             textSender.sendMessage(comment.text, channel, false) {
                 eventHub.fireCommentUsed(comment, message, it)
+                eventHub.fireSpeakableTextRelayed(comment.text, message, it)
             }
         }
     }
