@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.entities.ChannelType
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
 import net.shelg.pawnbot.TextSender
+import net.shelg.pawnbot.censoring.Censor
 import net.shelg.pawnbot.configuration.ConfigService
 import net.shelg.pawnbot.events.EventHub
 import net.shelg.pawnbot.pornhub.PornhubCommentService
@@ -16,7 +17,8 @@ class MentionTrigger(
         private val configService: ConfigService,
         private val textSender: TextSender,
         private val commentService: PornhubCommentService,
-        private val eventHub: EventHub
+        private val eventHub: EventHub,
+        private val censor: Censor
 ) : MessageTrigger {
 
     private fun TextChannel.canTalkLogIfNot() =
@@ -35,9 +37,10 @@ class MentionTrigger(
         val numWordsInterval = configService.reactionsMentionNumwordsInterval(channel)
         val comment = commentService.getRandomComment(percentGay, numWordsInterval.first, numWordsInterval.second)
         if (comment != null) {
-            textSender.sendMessage("${message.author.asMention}: ${comment.text}", channel, false) {
+            val censoredtext = censor.censorText(comment.text, channel)
+            textSender.sendMessage("${message.author.asMention}: $censoredtext", channel) {
                 eventHub.fireCommentUsed(comment, message, it)
-                eventHub.fireSpeakableTextRelayed(comment.text, message, it)
+                eventHub.fireSpeakableTextRelayed(censoredtext, message, it)
             }
         } else {
             textSender.sendMessage("${message.author.asMention}: Sorry, I looked through a bunch of random videos," +

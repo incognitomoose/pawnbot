@@ -4,26 +4,13 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
+import net.dv8tion.jda.api.entities.Guild
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class CensorTest {
     private val guildId = 123L
     private var idCounter = 1L
-
-    @Test
-    fun `hardcoded censorships are applied`() {
-        // Given:
-        val censor = mockCensor(emptyList())
-
-        // When:
-        val censored = censor.censorTextForTest("I'm testing to see if n" + "igga" + "s, the n" + "igg" + "er," +
-                " the spices, the bodegos and the kiks work correctly. Pussyn" + "igge" + "rs though... Harder.")
-
-        // Then:
-        assertEquals("I'm testing to see if n\\*\\*\\*\\*s, the n\\*\\*\\*\\*\\*, the sp\\*\\*es," +
-                " the bod\\*\\*\\*s and the kiks work correctly. Pussyn\\*\\*\\*\\*\\*s though... Harder.", censored)
-    }
 
     @Test
     fun `single censorship is applied`() {
@@ -109,13 +96,13 @@ class CensorTest {
                     replacementPhrase = replacementPhrase
             )
 
-    private fun Censor.censorTextForTest(text: String) =
-            censorText(
-                    text = text,
-                    guild = mock { on { idLong } doReturn guildId },
-                    channel = mock(),
-                    hardcodedOnly = false
-            )
+    private fun Censor.censorTextForTest(text: String): String {
+        val mockedGuild = mock<Guild> { on { idLong } doReturn guildId }
+        return censorText(
+                text = text,
+                channel = mock { on { guild } doReturn mockedGuild }
+        )
+    }
 
     private fun createMockRepo(replacements: List<CensorshipReplacement>): CensorshipReplacementRepository =
             mock {

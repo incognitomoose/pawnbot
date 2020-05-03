@@ -3,6 +3,7 @@ package net.shelg.pawnbot.voice
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.VoiceChannel
+import net.shelg.pawnbot.HardcodedFilter
 import net.shelg.pawnbot.censoring.Censor
 import net.shelg.pawnbot.voice.tts.GoogleTTSClient
 import org.apache.commons.lang3.StringUtils
@@ -14,9 +15,15 @@ import java.util.*
 @Service
 class VoiceComponent(
         private val audioPlayerManager: AudioPlayerManager,
-        private val tts: GoogleTTSClient,
-        private val censor: Censor
+        private val tts: GoogleTTSClient
 ) {
+    private val filter = HardcodedFilter { filteredWord ->
+        when {
+            filteredWord.endsWith("s") -> "Twitch Admins"
+            else -> "Twitch Admin"
+        }
+    }
+
     private val queueManagers: MutableMap<Long, AudioPlayerQueueManager> = HashMap()
 
     private fun buildTempFilename(text: String?): String {
@@ -48,12 +55,13 @@ class VoiceComponent(
     }
 
     fun speakText(guild: Guild, text: String) {
-        val censoredText = censor.censorText(text, guild, null)
+        val filteredText = filter.apply(text)
+
         val trackScheduler = queueManagers[guild.idLong]
         if (trackScheduler != null) {
-            val file = File(buildTempFilename(censoredText) + ".ogg")
+            val file = File(buildTempFilename(filteredText) + ".ogg")
             try {
-                tts.textToSpeech(censoredText, file)
+                tts.textToSpeech(filteredText, file)
             } catch (e: IOException) {
                 throw IllegalStateException(e)
             }

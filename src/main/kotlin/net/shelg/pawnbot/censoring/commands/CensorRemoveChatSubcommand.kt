@@ -1,7 +1,7 @@
 package net.shelg.pawnbot.censoring.commands
 
-import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.TextChannel
 import net.shelg.pawnbot.TextSender
 import net.shelg.pawnbot.censoring.CensorshipReplacementService
 import net.shelg.pawnbot.triggers.commands.AbstractChatSubcommand
@@ -22,19 +22,16 @@ class CensorRemoveChatSubcommand(
         val response = respond(
                 group = args.getValue("group").toLowerCase(),
                 matchPhrase = args.getValue("match_phrase").toLowerCase(),
-                guild = context.guild
+                channel = context.textChannel
         )
         textSender.sendMessage(response, context.textChannel)
     }
 
-    private fun respond(group: String, matchPhrase: String, guild: Guild) =
-            when {
-                group == "hardcoded" ->
-                    "Cannot add to or remove from hardcoded group. You can override it by adding to a different group."
-                replacementService.removeReplacement(guild, group, matchPhrase) ->
-                    "Replacement removed from group $group"
-                else ->
-                    "No such replacement found in group $group"
+    private fun respond(group: String, matchPhrase: String, channel: TextChannel) =
+            if (replacementService.removeReplacement(channel, group, matchPhrase)) {
+                "Replacement removed from group $group"
+            } else {
+                "No such replacement found in group $group"
             }
 
 }

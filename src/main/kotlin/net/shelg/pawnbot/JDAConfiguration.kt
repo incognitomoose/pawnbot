@@ -15,8 +15,8 @@ class JDAConfiguration {
     fun jda(@Value("\${discord.bot.token}") botToken: String): JDA {
         val logger = LoggerFactory.getLogger(JDAConfiguration::class.java)
         logger.info("Logging on with token $botToken")
-        return JDABuilder(AccountType.BOT)
-                .setToken(botToken)
+        return JDABuilder
+                .createDefault(botToken)
                 .setAudioSendFactory(NativeAudioSendFactory())
                 .build()
     }

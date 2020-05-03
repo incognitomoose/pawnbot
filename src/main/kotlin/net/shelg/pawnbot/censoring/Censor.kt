@@ -1,6 +1,5 @@
 package net.shelg.pawnbot.censoring
 
-import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.TextChannel
 import org.springframework.stereotype.Component
 import java.util.regex.Matcher
@@ -10,8 +9,8 @@ import java.util.regex.Pattern
 class Censor(private val replacementService: CensorshipReplacementService) {
     data class TextPart(val text: String, val censored: Boolean = false)
 
-    fun censorText(text: String, guild: Guild, channel: TextChannel? = null, hardcodedOnly: Boolean = false) =
-            replacementService.getRegexReplacements(guild, channel, hardcodedOnly)
+    fun censorText(text: String, channel: TextChannel) =
+            replacementService.getRegexReplacements(channel)
                     .fold(listOf(TextPart(text)), ::applyReplacement)
                     .joinToString(separator = "", transform = TextPart::text)
 

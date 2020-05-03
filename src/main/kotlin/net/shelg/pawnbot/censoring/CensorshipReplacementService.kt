@@ -1,20 +1,19 @@
 package net.shelg.pawnbot.censoring
 
-import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.TextChannel
 import org.springframework.stereotype.Service
 import java.util.regex.Pattern
 
 @Service
 class CensorshipReplacementService(private val censorRepo: CensorshipReplacementRepository) {
-    fun getReplacementsInGroup(guild: Guild, group: String) =
-            getAllReplacementsForGuild(guild).filter { it.groupKey == group }
+    fun getReplacementsInGroup(channel: TextChannel, group: String) =
+            getReplacements(channel).filter { it.groupKey == group }
 
-    fun getAllGroups(guild: Guild) =
-            getAllReplacementsForGuild(guild).asSequence().map(CensorshipReplacement::groupKey).distinct().sorted().toList()
+    fun getAllGroups(channel: TextChannel) =
+            getReplacements(channel).asSequence().map(CensorshipReplacement::groupKey).distinct().sorted().toList()
 
-    fun getRegexReplacements(guild: Guild, channel: TextChannel?, hardcodedOnly: Boolean) =
-            getReplacementsForGuildAndChannel(guild, channel, hardcodedOnly).let { allReplacements ->
+    fun getRegexReplacements(channel: TextChannel) =
+            getReplacements(channel).let { allReplacements ->
                 allReplacements.asSequence()
                         .flatMap { replacement ->
                             if (!replacement.matchPhrase.endsWith("s")
@@ -35,19 +34,14 @@ class CensorshipReplacementService(private val censorRepo: CensorshipReplacement
                         .toList()
             }
 
-    private fun getReplacementsForGuildAndChannel(guild: Guild, channel: TextChannel?, hardcodedOnly: Boolean) =
-            // TODO: If in channel, only get enabled groups
-            if (hardcodedOnly) HardcodedCensorshipReplacements.list
-            else HardcodedCensorshipReplacements.list.plus(censorRepo.findAllByGuildId(guild.idLong))
+    private fun getReplacements(channel: TextChannel) =
+            censorRepo.findAllByGuildId(channel.guild.idLong)
 
-    private fun getAllReplacementsForGuild(guild: Guild) = HardcodedCensorshipReplacements.list
-            .plus(censorRepo.findAllByGuildId(guild.idLong))
-
-    fun saveReplacement(guild: Guild, group: String, matchPhrase: String, replacementPhrase: String) {
-        val existing = censorRepo.findByGuildIdAndGroupKeyAndMatchPhrase(guild.idLong, group, matchPhrase)
+    fun saveReplacement(textChannel: TextChannel, group: String, matchPhrase: String, replacementPhrase: String) {
+        val existing = censorRepo.findByGuildIdAndGroupKeyAndMatchPhrase(textChannel.guild.idLong, group, matchPhrase)
         val replacement = CensorshipReplacement(
                 id = existing?.id,
-                guildId = guild.idLong,
+                guildId = textChannel.guild.idLong,
                 groupKey = group,
                 matchPhrase = matchPhrase,
                 replacementPhrase = replacementPhrase
@@ -55,8 +49,8 @@ class CensorshipReplacementService(private val censorRepo: CensorshipReplacement
         censorRepo.save(replacement)
     }
 
-    fun removeReplacement(guild: Guild, group: String, matchPhrase: String): Boolean {
-        val existing = censorRepo.findByGuildIdAndGroupKeyAndMatchPhrase(guild.idLong, group, matchPhrase)
+    fun removeReplacement(channel: TextChannel, group: String, matchPhrase: String): Boolean {
+        val existing = censorRepo.findByGuildIdAndGroupKeyAndMatchPhrase(channel.guild.idLong, group, matchPhrase)
         if (existing != null) censorRepo.delete(existing)
         return existing != null
     }
