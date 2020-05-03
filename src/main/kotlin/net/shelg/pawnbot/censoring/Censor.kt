@@ -2,19 +2,62 @@ package net.shelg.pawnbot.censoring
 
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.TextChannel
-import net.shelg.pawnbot.replaceAllMatches
 import org.springframework.stereotype.Component
+import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 @Component
 class Censor(private val replacementService: CensorshipReplacementService) {
-    fun censorText(text: String, guild: Guild, channel: TextChannel? = null, hardcodedOnly: Boolean = false) =
-            replacementService.getRegexReplacements(guild, channel, hardcodedOnly).fold(text, ::applyReplacement)
+    data class TextPart(val text: String, val censored: Boolean = false)
 
-    private fun applyReplacement(text: String, pair: Pair<Pattern, String>) =
-            text.replaceAllMatches(pair.first) {
-                pair.second.toSameCaseAs(it.group(1)).replace("\\", "\\\\")
+    fun censorText(text: String, guild: Guild, channel: TextChannel? = null, hardcodedOnly: Boolean = false) =
+            replacementService.getRegexReplacements(guild, channel, hardcodedOnly)
+                    .fold(listOf(TextPart(text)), ::applyReplacement)
+                    .joinToString(separator = "", transform = TextPart::text)
+
+    private fun applyReplacement(textParts: List<TextPart>, pair: Pair<Pattern, String>) =
+            textParts.flatMap {
+                if (it.censored) {
+                    listOf(it)
+                } else {
+                    val uncensoredText = it.text
+
+                    val matcher = pair.first.matcher(uncensoredText)
+
+                    val partsAfterMatching = mutableListOf<TextPart>()
+                    var previousEnd = 0
+
+                    while (matcher.find()) {
+                        val startIndex = matcher.start()
+                        if (startIndex != previousEnd) {
+                            partsAfterMatching += TextPart(
+                                    text = uncensoredText.substring(previousEnd, startIndex),
+                                    censored = false
+                            )
+                        }
+
+                        partsAfterMatching += TextPart(
+                                text = replacementText(pair, matcher),
+                                censored = true
+                        )
+
+                        previousEnd = matcher.end()
+                    }
+
+                    if (previousEnd < uncensoredText.length) {
+                        partsAfterMatching += TextPart(
+                                text = uncensoredText.substring(previousEnd),
+                                censored = false
+                        )
+                    }
+
+                    partsAfterMatching
+                }
             }
+
+    private fun replacementText(replacementPair: Pair<Pattern, String>, matcher: Matcher) =
+            replacementPair.second.toSameCaseAs(matcher.group(1))
+
 
     private fun String.toSameCaseAs(original: String) =
             if (original.hasLetters() && original.allLettersAreUppercase()) toUpperCase() else this
