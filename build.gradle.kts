@@ -3,12 +3,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
-    id("org.springframework.boot") version "2.2.2.RELEASE"
-    id("io.spring.dependency-management") version "1.0.8.RELEASE"
-    kotlin("jvm") version "1.3.61"
-    kotlin("plugin.spring") version "1.3.61"
-    kotlin("plugin.jpa") version "1.3.61"
-    id("nebula.release") version "13.0.0"
+    id("org.springframework.boot") version "2.2.6.RELEASE"
+    id("io.spring.dependency-management") version "1.0.9.RELEASE"
+    kotlin("jvm") version "1.3.71"
+    kotlin("plugin.spring") version "1.3.71"
+    kotlin("plugin.jpa") version "1.3.71"
+    id("nebula.release") version "15.0.0"
     id("se.patrikerdes.use-latest-versions") version "0.2.13"
     id("com.github.ben-manes.versions") version "0.21.0"
 }
@@ -47,16 +47,16 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation("net.dv8tion:JDA:4.1.0_81")
-    implementation("org.jsoup:jsoup:1.12.1")
+    implementation("net.dv8tion:JDA:4.1.1_142")
+    implementation("org.jsoup:jsoup:1.13.1")
     implementation("ch.qos.logback:logback-classic:1.2.3")
-    implementation("org.codehaus.janino:janino:3.1.0")
+    implementation("org.codehaus.janino:janino:3.1.2")
 
-    implementation(platform("com.google.cloud:libraries-bom:3.0.0"))
+    implementation(platform("com.google.cloud:libraries-bom:5.3.0"))
     implementation("com.google.cloud:google-cloud-texttospeech")
     implementation("com.sedmelluq:jda-nas:1.1.0")
 
-    implementation("com.sedmelluq:lavaplayer:1.3.32")
+    implementation("com.sedmelluq:lavaplayer:1.3.47")
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("com.h2database:h2")
